@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+  <!-- Replace the content tag with appropriate information -->
+  <meta name="description" content="Parallel sampling promises substantial gains in test-time scaling, but its effectiveness is sharply limited by diversity collapse. We propose mode-conditioning (ModC), which explicitly allocates test-time compute across reasoning modes using either specialist models or mode-specific prefixes. ModC consistently improves scaling across controlled graph-search tasks and large-scale reasoning benchmarks, achieving up to 8× efficiency gains.">
+  <meta property="og:title" content="Mode-conditioning unlocks superior test-time compute scaling"/>
+  <meta property="og:description" content="A new paradigm for improving test-time scaling in LLMs through explicit mode-conditioning"/>
+  <meta property="og:url" content="URL_TO_BE_UPDATED"/>
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+  <meta property="og:image" content="static/image/sink.png" />
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+
+
+  <meta name="twitter:title" content="Mode-conditioning unlocks superior test-time compute scaling">
+  <meta name="twitter:description" content="Improving test-time scaling in LLMs through explicit mode-conditioning. By Chen Henry Wu, Sachin Goyal, and Aditi Raghunathan.">
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
+  <meta name="twitter:image" content="static/image/sink.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Keywords for your paper to be indexed by-->
+  <meta name="keywords" content="Test-time Scaling, Mode-conditioning, Reasoning, LLM, Parallel Sampling, Diversity">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>Mode-conditioning unlocks superior test-time compute scaling</title>
+  <link rel="icon" type="image/x-icon" href="static/images/sink.png">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css?v=2">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+</head>
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Mode-conditioning unlocks superior test-time compute scaling</h1>
+            <div class="is-size-5 publication-authors">
+              <!-- Paper authors -->
+              <span class="author-block">
+                <a href="#" target="_blank">Chen Henry Wu</a>,
+                <span class="author-block">
+                  <a href="#" target="_blank">Sachin Goyal</a>,
+                  <span class="author-block">
+                    <a href="https://www.cs.cmu.edu/~aditirag/" target="_blank">Aditi Raghunathan</a>
+                  </span>
+                  </div>
+
+                  <div class="is-size-5 publication-authors">
+                    <span class="author-block">Carnegie Mellon University<br>ICLR 2026</span>
+                  </div>
+
+                  <div class="column has-text-centered">
+                    <div class="publication-links">
+                         <!-- Arxiv PDF link -->
+                      <span class="link-block">
+                        <a href="diversity_test_time_scaling/iclr2026/iclr2026_conference.pdf" target="_blank"
+                        class="external-link button is-normal is-rounded is-dark">
+                        <span class="icon">
+                          <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <span>Paper</span>
+                      </a>
+                    </span>
+
+
+                  <!-- Github link -->
+                  <span class="link-block">
+                    <a href="#" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code (Coming Soon)</span>
+                  </a>
+                </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Teaser image-->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <center>
+        <img src="static/images/fig_spec2_updated.png" alt="Teaser Image" style="width: 750px !important; max-width: 750px !important; height: auto; display: block; margin: 10px auto;">
+      </center>
+      <h2 class="subtitle has-text-centered">
+      Modern LLMs often collapse to a single strategy during test-time, making Pass@k scaling suboptimal. We introduce <strong>mode-conditioning (ModC)</strong> that explicitly allocates test-time compute across diverse modes, achieving <strong>8× efficiency gains</strong> while improving maximum attainable Pass@k performance.
+      </h2>
+    </div>
+  </div>
+</section>
+<!-- End teaser image -->
+
+<!-- Paper abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">TL;DR</h2>
+        <div class="content has-text-justified">
+          <ul style="font-size: 1.2em; line-height: 1.6;">
+            <li><strong>🚫 The Problem:</strong> Parallel sampling for test-time scaling is limited by diversity collapse—models repeatedly try the same failed strategy, leading to diminishing returns.</li>
+            <li><strong>💡 The Solution:</strong> We introduce <strong>mode-conditioning (ModC)</strong>, which explicitly allocates test-time compute across diverse reasoning modes using either specialist models or mode-specific prefixes.</li>
+            <li><strong>✅ The Results:</strong> ModC achieves up to <strong>8× efficiency gains</strong> on reasoning tasks (matching Pass@1024 performance with only 128 samples), with consistent improvements across model families (0.5B-7B) and both controlled tasks and real-world benchmarks.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+<!-- Paper content -->
+<section class="hero is-small is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title">The Challenge: Diversity Collapse in Test-Time Scaling</h2>
+      <div class="content has-text-justified">
+        <p>
+          <strong>Parallel sampling</strong> (e.g., Pass@k) promises substantial gains in test-time compute scaling—instead of one attempt, the model gets k independent tries to solve a problem. This approach is especially effective for tasks like mathematics and coding where solutions can be automatically verified.
+        </p>
+        <p>
+          <strong>The Problem:</strong> Despite its promise, parallel scaling suffers from <strong>diversity collapse</strong>—models concentrate on a few dominant modes and repeated samples produce the same mistakes. As a result:
+        </p>
+        <ul style="margin-left: 20px;">
+          <li>Additional samples often reproduce identical errors</li>
+          <li>Models converge on indistinguishable strategies</li>
+          <li>Scaling test-time compute yields diminishing returns</li>
+        </ul>
+
+          <center>
+          <img src="static/images/imbalance.png" alt="Mode Imbalance" class="teaser-image" style="width: 800px !important; max-width: 800px !important;">
+          </center>
+          <p>
+            <center>
+              <b><i>Figure: Standard training fails to balance diverse modes per problem under repeated sampling.</i></b> Models trained on mixed data (DFS and BFS algorithms) tend to commit to just one strategy per problem, rather than exploring both. Mode-conditioning (ModC) successfully achieves balanced allocation.
+            </center>
+          </p>
+
+          <div style="text-align: center; margin: 30px 0; padding: 20px; background-color: #f5f5f5; border-left: 5px solid #3273dc;">
+            <p style="font-size: 24px; font-weight: bold; color: #3273dc; margin: 0;">
+              💡 Key Insight: Explicit mode allocation beats sampling from collapsed distributions
+            </p>
+          </div>
+          <div style="background-color: rgba(225, 200, 245, 0.4);padding-left: 20px;padding-right: 20px;margin: 10px;padding-top: 10px;padding-bottom: 10px;width: 100%;border: 2px solid black;border-radius: 6px;">
+            <p style="font-size: 20px; font-weight: bold;">🧮 Mathematical Intuition</p>
+            <p>Even when a model is balanced across two modes with equal weights, explicitly allocating k/2 samples to each mode strictly outperforms drawing k samples from the mixture—whenever the modes have different success probabilities on an input. The advantage is especially pronounced when the dominant mode fails but a lower-probability one succeeds.</p>
+          </div>
+      </div>
+    </div>
+  </section>
+<!--End paper content -->
+
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title">Mode-Conditioning: The Solution</h2>
+      <div class="content has-text-justified">
+        <p>
+          Given the challenges of diversity collapse, we propose <strong>mode-conditioning (ModC)</strong>, a framework that explicitly structures test-time scaling around multiple reasoning modes. Rather than drawing repeatedly from a collapsed distribution, we enforce coverage across strategies by conditioning on modes.
+          <div style="background-color: rgba(173, 216, 230, 0.5);margin: 0px;padding-top: 10px;padding-bottom: 10px;width: 100%;padding-left: 20px;padding-right: 20px;border: 2px solid black;border-radius: 6px;">
+          <p style="font-size: 20px; font-weight: bold;">Core Idea</p>
+          <p><strong>Explicit Mode Allocation</strong>: Instead of sampling k times from a single mode, explicitly access N diverse modes and sample each k/N times.</p>
+          <p><strong>Better Coverage</strong>: A problem that remains intractable under one distribution might be solvable under another, dramatically expanding the range of solvable problems.</p>
+          </div>
+        </p>
+
+        <h3 class="title">Two Approaches to Mode-Conditioning</h3>
+
+        <h4 class="title">🔀 Approach 1: Separate Specialist Models</h4>
+        <p>
+          Train distinct models, each specialized to a particular mode of reasoning. The training data is partitioned into subsets corresponding to different strategies, and a separate model is trained on each subset. At test time, the sampling budget is divided across the specialists (e.g., k/2 samples from each in the two-mode case).
+        </p>
+        <div style="background-color: rgba(225, 200, 245, 0.4);padding-left: 20px;padding-right: 20px;margin: 10px;padding-top: 10px;padding-bottom: 10px;width: 100%;border: 2px solid black;border-radius: 6px;">
+          <p style="font-size: 20px; font-weight: bold;">✅ Advantages</p>
+          <p><strong>Strong Separation:</strong> Ensures clear specialization with no interference between modes.</p>
+          <p><strong>Reduced Correlated Errors:</strong> Different specialists fail on different problems, improving parallel scaling.</p>
+        </div>
+        <div style="background-color: rgba(255, 200, 200, 0.4);padding-left: 20px;padding-right: 20px;margin: 10px;padding-top: 10px;padding-bottom: 10px;width: 100%;border: 2px solid black;border-radius: 6px;">
+          <p style="font-size: 20px; font-weight: bold;">❌ Limitations</p>
+          <p><strong>No Knowledge Sharing:</strong> Prevents transfer of common linguistic or mathematical foundations across modes.</p>
+        </div>
+        <div style="margin-top: 30px;"></div>
+
+        <h4 class="title">🏷️ Approach 2: Mode-Specific Prefixes</h4>
+        <p>
+          Train a single model with explicit condition tokens (e.g., <code>[Mode 1]</code>, <code>[Mode 2]</code>) prepended to each training example. The model learns to associate each prefix with a distinct reasoning strategy. At inference, balanced compute allocation is enforced by sampling evenly across the conditioning prefixes.
+        </p>
+        <div style="background-color: rgba(225, 200, 245, 0.4);padding-left: 20px;padding-right: 20px;margin: 10px;padding-top: 10px;padding-bottom: 10px;width: 100%;border: 2px solid black;border-radius: 6px;">
+          <p style="font-size: 20px; font-weight: bold;">✅ Advantages</p>
+          <p><strong>Knowledge Sharing:</strong> Enables transfer of shared knowledge across modes while maintaining specialization.</p>
+          <p><strong>More Scalable:</strong> Requires training only a single model instead of multiple specialists.</p>
+        </div>
+        <div style="background-color: rgba(255, 200, 200, 0.4);padding-left: 20px;padding-right: 20px;margin: 10px;padding-top: 10px;padding-bottom: 10px;width: 100%;border: 2px solid black;border-radius: 6px;">
+          <p style="font-size: 20px; font-weight: bold;">❌ Limitations</p>
+          <p><strong>Capacity Limits:</strong> May face challenges if trying to capture too many modes in a single model.</p>
+          <p><strong>Imperfect Control:</strong> Model might not cleanly separate behaviors in all cases.</p>
+        </div>
+
+        <div style="margin-top: 30px;"></div>
+        <h4 class="title">🤖 Automated Mode Discovery</h4>
+        <p>
+          What if we don't know the modes in advance? We explore <strong>gradient clustering</strong> as a way to automatically discover meaningful modes in training data. Examples that induce similar parameter updates likely represent similar modes. This approach achieves up to 10% gains on NuminaMath dataset without any mode annotations.
+        </p>
+    </div>
+    </div>
+    </section>
+    <section class="hero is-small">
+      <div class="hero-body">
+        <div class="container">
+          <h3 class="title">Experimental Results</h3>
+          <div class="content has-text-justified">
+
+            <h4 class="title">🎯 Controlled Task: Countdown Graph Search</h4>
+            <p>
+              We first validate ModC on Countdown, a graph search task that can be solved using either depth-first search (DFS) or breadth-first search (BFS). Some problems are only solvable by DFS, others only by BFS—making mode coverage crucial.
+            </p>
+            <center>
+            <img src="static/images/pass_at_k_curves.png" alt="Countdown Results" class="teaser-image" style="width: 800px !important; max-width: 800px !important;">
+            </center>
+            <p>
+              <center>
+              <b><i>Figure: ModC dramatically improves test-time scaling on Countdown.</i></b> On both natural and adversarial test sets, ModC (both separate models and prefixes) consistently outperforms standard training, with gains up to 20% on adversarial problems that require mode diversity.
+              </center>
+            </p>
+
+            <h4 class="title">📊 Real-World Math Reasoning</h4>
+            <p><strong>Short Chain-of-Thought:</strong> We apply ModC to distillation from two teachers (DeepSeek-R1 and GPT-OSS-120B) on the NuminaMath dataset, evaluated on MATH500.</p>
+            <center>
+            <img src="static/images/pass_at_k_curves_teachers_no_thinking.png" alt="Short CoT Results Qwen" class="teaser-image" style="width: 800px !important; max-width: 800px !important;">
+            </center>
+            <center>
+            <img src="static/images/pass_at_k_curves_teachers_no_thinking_olmo.png" alt="Short CoT Results OLMo" class="teaser-image" style="width: 720px !important; max-width: 720px !important;">
+            </center>
+            <p>
+              <center>
+              <b><i>Figure: ModC improves short CoT reasoning.</i></b> Pass@k on MATH500. Naively mixing teacher data underperforms the single-teacher baseline, while ModC shows consistent gains. ModC with prefixes generally works better than ModC with separate models underscoring the importance of sharing knowledge across modes (teacher strategies) in math reasoning.
+              </center>
+            </p>
+
+            <p><strong>Long Chain-of-Thought:</strong> Using OpenThoughts dataset with QwQ-32B and DeepSeek-R1 teachers, evaluated on AIME 2025.</p>
+            <center>
+            <img src="static/images/pass_at_k_curves_openthoughts_teachers.png" alt="Long CoT Results" class="teaser-image" style="width: 225px !important; max-width: 225px !important;">
+            </center>
+            <p>
+              <center>
+              <b><i>Figure: 8× efficiency gains with ModC on long CoT.</i></b> ModC matches the Pass@1024 of standard training with only k=128 samples, while also improving the maximum attainable Pass@k.
+              </center>
+            </p>
+
+            <h4 class="title">🔍 Automated Mode Discovery via Gradient Clustering</h4>
+            <p>
+              Can we discover modes automatically? We explore <strong>gradient clustering</strong> as a way to automatically discover meaningful modes in training data. Examples that induce similar parameter updates likely represent similar modes.
+            </p>
+
+            <p><strong>Validating on Multi-Teacher Data:</strong> We first validate gradient clustering on the short CoT dataset where ground-truth teacher labels exist. Gradient clustering achieves 98.7% F1 score in recovering teacher assignments, and more importantly, yields nearly identical test-time scaling benefits as using true teacher labels.</p>
+            <center>
+            <img src="static/images/pass_at_k_curves_teachers_no_thinking_with_cluster.png" alt="Teacher Recovery Results" class="teaser-image" style="width: 800px !important; max-width: 800px !important;">
+            </center>
+            <p>
+              <center>
+              <b><i>Figure: Validating gradient clustering on multi-teacher data.</i></b> ModC with gradient clustering almost completely matches ModC with access to teacher annotations, confirming that gradient patterns effectively capture the underlying modes.
+              </center>
+            </p>
+
+            <p><strong>General Data Without Known Modes:</strong> We apply gradient clustering to NuminaMath, a diverse dataset where modes are unknown. ModC on automatically discovered modes yields significant improvements across model scales.</p>
+            <center>
+            <img src="static/images/pass_at_k_curves_numina_40k_with_cluster.png" alt="Gradient Clustering Results" class="teaser-image" style="width: 800px !important; max-width: 800px !important;">
+            </center>
+            <p>
+              <center>
+              <b><i>Figure: ModC on automatically discovered modes via gradient clustering improves short CoT.</i></b> Pass@k on MATH500 shows consistent gains across Qwen2.5-Base model scales even without any mode annotations.
+              </center>
+            </p>
+
+            <div style="background-color: rgba(225, 200, 245, 0.4);margin: 10px 0;padding: 20px;border: 2px solid black;border-radius: 6px;">
+              <p style="font-size: 20px; font-weight: bold;">🎉 Key Takeaways</p>
+              <ul>
+                <li><strong>Consistent Gains:</strong> ModC improves test-time scaling across all settings—controlled tasks, short CoT, long CoT, and multiple model families (Qwen, OLMo2)</li>
+                <li><strong>Efficiency:</strong> Up to 8× faster inference by matching Pass@1024 performance with only 128 samples</li>
+                <li><strong>Scalable:</strong> Works with both explicit modes (teacher identity, search algorithms) and automated discovery (gradient clustering)</li>
+                <li><strong>Model Scales:</strong> Benefits hold across 0.5B to 7B parameter models</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      </section>
+
+        
+        
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@inproceedings{
+        wu2026mode,
+        title={Mode-conditioning unlocks superior test-time compute scaling},
+        author={Chen Henry Wu and Sachin Goyal and Aditi Raghunathan},
+        booktitle={Submitted to International Conference on Learning Representations},
+        year={2026},
+        url={https://openreview.net/forum?id=XXXXX},
+        note={under review}
+        }</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
+
+  <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Statcounter tracking code -->
+  
+<!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+
+    <!-- End of Statcounter Code -->
+
+  </body>
+  </html>
