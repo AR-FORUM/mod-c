@@ -72,7 +72,7 @@
                     <div class="publication-links">
                          <!-- Arxiv PDF link -->
                       <span class="link-block">
-                        <a href="diversity_test_time_scaling/iclr2026/iclr2026_conference.pdf" target="_blank"
+                        <a href="static/pdfs/paper.pdf" target="_blank"
                         class="external-link button is-normal is-rounded is-dark">
                         <span class="icon">
                           <i class="fas fa-file-pdf"></i>
@@ -222,10 +222,21 @@
         </div>
 
         <div style="margin-top: 30px;"></div>
-        <h4 class="title">🤖 Automated Mode Discovery</h4>
+        <h4 class="title">🤖 Automated Mode Discovery via Gradient Clustering</h4>
         <p>
-          What if we don't know the modes in advance? We explore <strong>gradient clustering</strong> as a way to automatically discover meaningful modes in training data. Examples that induce similar parameter updates likely represent similar modes. This approach achieves up to 10% gains on NuminaMath dataset without any mode annotations.
+          What if we don't know the modes in advance? Most real-world training data contains mixed modes but lacks explicit labels. We propose using <strong>gradient clustering</strong> to automatically discover and annotate modes in training data.
         </p>
+        <div style="background-color: rgba(173, 216, 230, 0.5);padding-left: 20px;padding-right: 20px;margin: 10px;padding-top: 10px;padding-bottom: 10px;width: 100%;border: 2px solid black;border-radius: 6px;">
+          <p style="font-size: 20px; font-weight: bold;">💡 Method</p>
+          <p><strong>Key Intuition:</strong> Examples that induce similar parameter updates likely come from the same mode.</p>
+          <p><strong>Algorithm:</strong></p>
+          <ol style="margin-left: 20px;">
+            <li>For each training example (x, y), compute gradients: g<sub>θ</sub>(x, y) = ∇<sub>θ</sub> log p<sub>θ</sub>(y|x)</li>
+            <li>Apply Rademacher random projection to reduce dimensionality</li>
+            <li>Cluster the projected gradient vectors into C clusters</li>
+            <li>Treat each cluster as a "mode" and apply ModC with mode-specific prefixes</li>
+          </ol>
+        </div>
     </div>
     </div>
     </section>
